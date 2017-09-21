@@ -1,31 +1,43 @@
 #include "dmcore.hpp"
 
 #include <cstdint>
+#include <tuple>
 
 #include <mlpack/core.hpp>
 #include <mlpack/core/tree/cover_tree/typedef.hpp>
 #include <mlpack/methods/neighbor_search/neighbor_search.hpp>
 #include <armadillo>
 
+using namespace dmcore;
+
 using std::size_t;
 
-using mlpack::data::Load;
+using arma::mat;
+using arma::Mat;
+
 using mlpack::neighbor::NeighborSearch;
 using mlpack::neighbor::NearestNeighborSort;
 using mlpack::metric::EuclideanDistance;
+using mlpack::kernel::CosineDistance;
 using mlpack::tree::StandardCoverTree;
 
-size_t test() {
-	arma::mat data;
-	Load("data.csv", data, true);
-	NeighborSearch<NearestNeighborSort, EuclideanDistance, arma::mat, StandardCoverTree> nn(data);
+template<typename MetricType>
+std::tuple<Mat<size_t>, mat>
+get_nn_impl(mat data, size_t k) {
+	NeighborSearch<NearestNeighborSort, MetricType, mat, StandardCoverTree> nn(data);
 	
-	arma::Mat<size_t> neighbors;
-	arma::mat distances;
-	nn.Search(1, neighbors, distances);
+	Mat<size_t> neighbors;
+	mat distances;
+	nn.Search(k, neighbors, distances);
 	
-	for (size_t i = 0; i < neighbors.n_elem; ++i) {
-		std::cout << "Nearest neighbor of point " << i << " is point " << neighbors[i] << " and the distance is " << distances[i] << ".\n";
+	return std::make_tuple(neighbors, distances);
+}
+
+std::tuple<Mat<size_t>, mat>
+dmcore::get_nn(mat data, size_t k, DistanceMetric metric) {
+	switch(metric) {
+		case DistanceMetric::Euclidean: return get_nn_impl<EuclideanDistance>(data, k);
+		case DistanceMetric::Cosine:    return get_nn_impl<   CosineDistance>(data, k);
 	}
-	return neighbors.n_elem;
+	__builtin_unreachable();
 }
