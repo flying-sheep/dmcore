@@ -1,25 +1,21 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 project(dmcore)
-
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-
-find_package(Armadillo REQUIRED)
-find_package(MLPACK REQUIRED)
-include_directories(${ARMADILLO_INCLUDE_DIRS} ${MLPACK_INCLUDE_DIRS})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -pedantic -pedantic-errors -Wall -Wextra")
 
-#file(GLOB_RECURSE header_files FOLLOW_SYMLINKS "include/*.hpp")
-file(GLOB_RECURSE source_files FOLLOW_SYMLINKS "src/*.cpp")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-include_directories("include")
+# libraries
 
-add_library(dmcore SHARED ${source_files})
-add_executable(dmcore-bin src/bin/main.cpp)
-set_target_properties(dmcore-bin PROPERTIES OUTPUT_NAME dmcore)
-target_link_libraries(dmcore-bin dmcore ${ARMADILLO_LIBRARIES} ${MLPACK_LIBRARIES})
+find_package(Armadillo REQUIRED)
+find_package(MLPACK REQUIRED)
 
-install(TARGETS dmcore LIBRARY DESTINATION lib)
+# test
 
 enable_testing()
+
+# parts
+
+add_subdirectory(dmcore)
+add_subdirectory(dmcore-bin)
