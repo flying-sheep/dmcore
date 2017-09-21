@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <tuple>
+#include <utility>
 
 #include <mlpack/core.hpp>
 
@@ -22,8 +22,15 @@ enum class DistanceMetric {
 	Cosine,
 };
 
-std::tuple<Mat<size_t>, mat> get_nn(mat data, size_t k, DistanceMetric metric=DistanceMetric::Euclidean);
+/**
+ * Find the kNN in the data using a specific distance metric.
+ */
+std::pair<Mat<size_t>, mat> get_nn(mat data, size_t k, DistanceMetric metric=DistanceMetric::Euclidean);
 
+/**
+ * Create a sparse n×n distance matrix given two k×n matrices with neighbor indices and distances, respectively.
+ */
 sp_mat nn_to_mat(Mat<size_t> neighbors, mat distances);
+sp_mat nn_to_mat(Mat<size_t> neighbors, mat distances, size_t k);
 
 }
