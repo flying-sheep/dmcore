@@ -6,12 +6,13 @@
 
 using arma::mat;
 using arma::Mat;
+using arma::sp_mat;
 
 using mlpack::data::Load;
 
 int main(int argc, char* argv[]) {
 	if (argc < 2) {
-		std::cout << "Missing argument" << std::endl;
+		std::cerr << "Missing argument" << std::endl;
 		return 1;
 	}
 	
@@ -20,8 +21,10 @@ int main(int argc, char* argv[]) {
 	
 	Mat<size_t> neighbors;
 	mat distances;
-	std::tie(neighbors, distances) = get_nn(data, 5, dmcore::DistanceMetric::Euclidean);
+	std::tie(neighbors, distances) = dmcore::get_nn(data, 5, dmcore::DistanceMetric::Euclidean);
 	
-	std::cout << neighbors << std::endl << distances << std::endl;
+	sp_mat sp_dist = dmcore::nn_to_mat(neighbors, distances);
+	
+	std::cout << sp_dist << std::endl;
 	return 0;
 }
